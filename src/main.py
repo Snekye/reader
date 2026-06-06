@@ -21,7 +21,6 @@ def run():
     #tk setup
     root = tk.Tk()
     root.withdraw()
-    #start = os.path.abspath("assets")
 
     #setup
     text, words = "", [["Welcome! Press F9 to select a file."]] #empty  setup, see F9 event
@@ -99,12 +98,15 @@ def run():
                     case pygame.K_RIGHT:
                         index += math.ceil(5 * wpm/60)
                         if index >= wordcount_ch:
-                            index = 0
-                            index_ch += 1
-                            paused = True
-                            wordcount_ch = len(words[index_ch])
-                            if index_ch >= ch_count:
+                            if index_ch+1 >= ch_count:
                                 finished = True
+                                index = wordcount_ch
+                            else:
+                                index = 0
+                                index_ch += 1
+                                paused = True
+                                wordcount_ch = len(words[index_ch])
+                        
 
                         notif_text = "Forward"
                         notif_timepoint = datetime.datetime.now()
