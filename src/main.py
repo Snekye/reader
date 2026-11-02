@@ -6,7 +6,7 @@ import tkinter as tk
 from tkinter import filedialog
 import os
 
-from src.components.textParser import textParser
+from src.components.configManager import configManager
 
 from src.states.readingState import readingState
 
@@ -18,12 +18,11 @@ def run():
     pygame.display.set_caption("Reader")
     clock = pygame.time.Clock()
 
-    #fonts and renders
-    font_text = pygame.font.SysFont("Times New Roman", 32)
-    font_help = pygame.font.SysFont("Times New Roman", 20)
+    cm = configManager()
+    cfg = cm.load()
 
     #states
-    reading_state = readingState(font_help)
+    reading_state = readingState(cfg)
     current_state = reading_state
 
     #main loop
@@ -37,7 +36,7 @@ def run():
                 current_state.handleKey(e.key)
 
         current_state.update()
-        current_state.render(window, font_text, font_help, w, h)
+        current_state.render(window, w, h)
        
         pygame.display.flip()
         clock.tick(fps)/1000

@@ -1,0 +1,21 @@
+{
+    "fonts" : {
+        "text" : {
+            "font" : "Times New Roman",
+            "color" : "#FFFFFF",
+            "size" : 32
+        },
+        "notif" : {
+            "font" : "Times New Roman",
+            "color" : "#DCDCDC",
+            "size" : 20
+        },
+        "help" : {
+            "font" : "Times New Roman",
+            "color" : "#FFFFFF",
+            "size" : 20
+        }
+    },
+    "wpms" : [60, 120, 150, 180, 210, 240, 270, 300, 330, 360],
+    "aa" : true
+}

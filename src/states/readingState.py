@@ -10,7 +10,7 @@ from src.components.textParser import textParser
 from src.states._abstractState import _abstractState
 
 class readingState(_abstractState):
-    def __init__(self, font_help):
+    def __init__(self, cfg):
         #tk setup
         self.root = tk.Tk()
         self.root.withdraw()
@@ -19,6 +19,7 @@ class readingState(_abstractState):
         self.tp = textParser()
 
         #setup
+        self.cfg = cfg
         self.text, self.words = "", [["Welcome! Press F9 to select a file."]] #empty  setup, see F9 event
 
         self.wordcount = 0
@@ -27,7 +28,7 @@ class readingState(_abstractState):
         self.index = 0
         self.index_ch=0
 
-        self.wpms = [60, 120, 150, 180, 210, 240, 270, 300, 330, 360]
+        self.wpms = cfg["wpms"]
         self.wpm_index = 3
         self.wpm = self.wpms[self.wpm_index]
         self.paused = True
@@ -38,18 +39,26 @@ class readingState(_abstractState):
         self.notif_text = ""
         self.notif_timepoint = datetime.datetime.now()
 
-        #pre_loading default ; see "render" section in main loop
-        self.r_words = font_help.render(f"Chapter : -/- | Words (Chapter) : -/-", True, (255, 255, 255))
+        #fonts
+        self.font_text = pygame.font.SysFont(cfg["fonts"]["text"]["font"], cfg["fonts"]["text"]["size"])
+        self.font_notif = pygame.font.SysFont(cfg["fonts"]["notif"]["font"], cfg["fonts"]["notif"]["size"])
+        self.font_help = pygame.font.SysFont(cfg["fonts"]["help"]["font"], cfg["fonts"]["help"]["size"])
+        self.col_text = cfg["fonts"]["text"]["color"]
+        self.col_notif = cfg["fonts"]["notif"]["color"]
+        self.col_help = cfg["fonts"]["help"]["color"]
 
-        self.help_keybinds = font_help.render(
+        #pre_loading default ; see "render" section in main loop
+        self.r_words = self.font_help.render(f"Chapter : -/- | Words (Chapter) : -/-", True, (255, 255, 255))
+
+        self.help_keybinds = self.font_help.render(
             "SPACE = Pause/Unpause | LEFT = Back 5s | RIGHT = Forward 5s | UP = Raise WPM | DOWN = Lower WPM",
             True, (255, 255, 255)
         )
-        self.help_keybinds2 = font_help.render(
+        self.help_keybinds2 = self.font_help.render(
             "[Not yet] F5 = Change new chapter mode | O = Previous chapter | P = Next chapter",
             True, (255, 255, 255)
         )
-        self.help_keybinds3 = font_help.render(
+        self.help_keybinds3 = self.font_help.render(
             "F9 = Select text file | [Not yet] F10 = Change newline mode | [Not yet] F11 = GOTO | F12 = Antialiasing ON/OFF",
             True, (255, 255, 255)
         )
@@ -67,34 +76,36 @@ class readingState(_abstractState):
                 self.notif_timepoint = datetime.datetime.now()
 
             case pygame.K_LEFT:
-                self.finished = False
-                if self.index == 0:
-                    if self.index_ch > 0:
-                        self.index_ch -=1
-                        self.wordcount_ch = len(self.words[self.index_ch])
+                if self.loaded:
+                    self.finished = False
+                    if self.index == 0:
+                        if self.index_ch > 0:
+                            self.index_ch -=1
+                            self.wordcount_ch = len(self.words[self.index_ch])
 
-                self.index -= math.ceil(5 * self.wpm/60)
-                if self.index < 0:
-                    self.index = 0
+                    self.index -= math.ceil(5 * self.wpm/60)
+                    if self.index < 0:
+                        self.index = 0
 
-                self.notif_text = "Rewind"
-                self.notif_timepoint = datetime.datetime.now()
+                    self.notif_text = "Rewind"
+                    self.notif_timepoint = datetime.datetime.now()
 
             case pygame.K_RIGHT:
-                self.index += math.ceil(5 * self.wpm/60)
-                if self.index >= self.wordcount_ch:
-                    if self.index_ch+1 >= self.ch_count:
-                        self.finished = True
-                        self.index = self.wordcount_ch
-                    else:
-                        self.index = 0
-                        self.index_ch += 1
-                        self.paused = True
-                        self.wordcount_ch = len(self.words[self.index_ch])
-                
+                if self.loaded:
+                    self.index += math.ceil(5 * self.wpm/60)
+                    if self.index >= self.wordcount_ch:
+                        if self.index_ch+1 >= self.ch_count:
+                            self.finished = True
+                            self.index = self.wordcount_ch
+                        else:
+                            self.index = 0
+                            self.index_ch += 1
+                            self.paused = True
+                            self.wordcount_ch = len(self.words[self.index_ch])
+                    
 
-                self.notif_text = "Forward"
-                self.notif_timepoint = datetime.datetime.now()
+                    self.notif_text = "Forward"
+                    self.notif_timepoint = datetime.datetime.now()
 
             case pygame.K_UP:
                 self.wpm_index +=1
@@ -177,16 +188,16 @@ class readingState(_abstractState):
                     self.paused = True
                     self.wordcount_ch = len(self.words[self.index_ch])
 
-    def render(self, window, font_text, font_help, w, h):
+    def render(self, window, w, h):
         #render
-        render = font_text.render("[File ended]" if self.finished else self.words[self.index_ch][self.index], self.aa, (255, 255, 255))
-        r_paused = font_help.render("Paused" if self.paused else "Unpaused", True, (255, 255, 255))
+        render = self.font_text.render("[File ended]" if self.finished else self.words[self.index_ch][self.index], self.aa, self.col_text)
+        r_paused = self.font_help.render("Paused" if self.paused else "Unpaused", True, self.col_help)
         if self.loaded:
-            self.r_words = font_help.render(f"Chapter : {self.index_ch+1}/{self.ch_count} | Words (Chapter) : {self.index}/{self.wordcount_ch}", True, (255, 255, 255))
-        r_wpm = font_help.render(f"WPM : {self.wpm}", True, (255, 255, 255))
+            self.r_words = self.font_help.render(f"Chapter : {self.index_ch+1}/{self.ch_count} | Words (Chapter) : {self.index}/{self.wordcount_ch}", True, self.col_help)
+        r_wpm = self.font_help.render(f"WPM : {self.wpm}", True, self.col_help)
 
         notif_alpha = max(0, 1 - max((datetime.datetime.now() - self.notif_timepoint).total_seconds() - 1, 0)) # 1 when ts < 1 ; 0 when ts > 2 ; inverse when ts € [1,2]
-        r_notif = font_help.render(self.notif_text, True, (220, 220, 220))
+        r_notif = self.font_help.render(self.notif_text, True, self.col_notif)
         r_notif.set_alpha(int(notif_alpha * 255))
 
         #display
