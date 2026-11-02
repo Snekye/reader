@@ -1,15 +1,12 @@
 class _abstractState:
-    def __init__(self):
+    def __init__(self, *args):
         return
 
-    def handleKey(self):
+    def handleKey(self, *args):
         return
 
-    def update(self):
+    def update(self, *args):
         return
 
-    def render(self):
-        return
-
-    def display(self):
+    def render(self,  *args):
         return

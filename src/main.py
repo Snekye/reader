@@ -2,15 +2,17 @@ import datetime
 import pygame
 import math
 
-import tkinter as tk
-from tkinter import filedialog
-import os
-
 from src.components.configManager import configManager
 
 from src.states.readingState import readingState
+from src.states.configState import configState
+
+def changeState(state):
+    global current_state
+    current_state = state
 
 def run():
+    global current_state
    #pygame setup
     pygame.init()
     w, h, fps, running = 1280, 720, 60, True
@@ -18,11 +20,8 @@ def run():
     pygame.display.set_caption("Reader")
     clock = pygame.time.Clock()
 
-    cm = configManager()
-    cfg = cm.load()
-
     #states
-    reading_state = readingState(cfg)
+    reading_state = readingState(changeState)
     current_state = reading_state
 
     #main loop
