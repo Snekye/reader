@@ -112,7 +112,8 @@ class readingState(_abstractState):
                         else:
                             self.index = 0
                             self.index_ch += 1
-                            self.paused = True
+                            if self.cfg["ch_pause"]:
+                                self.paused = True
                             self.wordcount_ch = len(self.words[self.index_ch])
                     
 
@@ -139,7 +140,8 @@ class readingState(_abstractState):
 
             case pygame.K_o:
                 self.finished = False
-                self.paused = True
+                if self.cfg["ch_pause"]:
+                    self.paused = True
                 if self.index == 0 and self.index_ch > 0:
                     self.index_ch -= 1
                     self.wordcount_ch = len(self.words[self.index_ch])
@@ -149,7 +151,8 @@ class readingState(_abstractState):
                 self.notif_timepoint = datetime.datetime.now()
 
             case pygame.K_p:
-                self.paused = True
+                if self.cfg["ch_pause"]:
+                    self.paused = True
                 if self.index_ch+1 >= self.ch_count:
                     self.finished = True
                     self.index = self.wordcount_ch
@@ -195,7 +198,8 @@ class readingState(_abstractState):
                 else:
                     self. index = 0
                     self. index_ch += 1
-                    self.paused = True
+                    if self.cfg["ch_pause"]:
+                        self.paused = True
                     self.wordcount_ch = len(self.words[self.index_ch])
 
     def render(self, window, w, h):

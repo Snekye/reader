@@ -5,6 +5,7 @@ from src.states._abstractState import _abstractState
 from src.components.configManager import configManager
 
 class configState(_abstractState):
+    BLANKS = ["\u3164", "\u115F", "\u2800","\u2060", "\uFE0F"]
     def __init__(self, callback, changeState):
         self.callback = callback
         self.change_state = changeState
@@ -25,8 +26,9 @@ class configState(_abstractState):
         self.label5 = self.font_help.render("F5 | Floating notifications", self.cfg["aa"], self.col_help)
         self.label6 = self.font_help.render("F6 | Background color [Not yet]", self.cfg["aa"], self.col_help)
         self.label7 = self.font_help.render("F7 | wpms [Not yet]", self.cfg["aa"], self.col_help)
-        self.label8 = self.font_help.render("F8", self.cfg["aa"], self.col_help)
+        self.label8 = self.font_help.render("F8 | blank | Switch until blank (with width) : ", self.cfg["aa"], self.col_help)
 
+        self.label9 = self.font_help.render("F9 | Pause after new chapter", self.cfg["aa"], self.col_help)
         self.label12 = self.font_help.render("F12 | Save settings", self.cfg["aa"], self.col_help)
 
         f = self.cfg["fonts"]
@@ -44,6 +46,9 @@ class configState(_abstractState):
         self.value5 = self.font_help.render(str(self.cfg["floats"]), self.cfg["aa"], "#00FF00" if self.cfg["floats"] else "#FF0000")
         self.value6 = self.font_help.render(self.cfg["bg_color"], self.cfg["aa"], self.col_help)
         self.value7 = self.font_help.render(str(self.cfg["wpms"]), self.cfg["aa"], self.col_help)
+        self.value8 = self.font_help.render(f"[{self.cfg["blank"]}] - U+{ord(self.cfg["blank"]):04X}", self.cfg["aa"], self.col_help)
+
+        self.value9 = self.font_help.render(str(self.cfg["ch_pause"]), self.cfg["aa"], "#00FF00" if self.cfg["ch_pause"] else "#FF0000")
 
     def handleKey(self, key):
         match key:
@@ -52,6 +57,16 @@ class configState(_abstractState):
                 self.txts()
             case pygame.K_F5:
                 self.cfg["floats"] = not self.cfg["floats"]
+                self.txts()
+            case pygame.K_F8:
+                index = self.BLANKS.index(self.cfg["blank"])
+                index +=1
+                if index >= len(self.BLANKS):
+                    index = 0
+                self.cfg["blank"] = self.BLANKS[index]
+                self.txts()
+            case pygame.K_F9:
+                self.cfg["ch_pause"] = not self.cfg["ch_pause"]
                 self.txts()
             case pygame.K_F12:
                 self.cm.save(self.cfg)
@@ -68,7 +83,8 @@ class configState(_abstractState):
         window.blit(self.label6, (100, 100+offset*6))        
         window.blit(self.label7, (100, 100+offset*7))  
         window.blit(self.label8, (100, 100+offset*8))       
-        window.blit(self.label12, (100, 100+offset*13))
+        window.blit(self.label9, (100, 100+offset*10))       #
+        window.blit(self.label12, (100, 100+offset*14))     #+1 again
 
         window.blit(self.value1, (600, 100))
         window.blit(self.hex1, (600+self.value1.get_width(), 100))
@@ -81,3 +97,6 @@ class configState(_abstractState):
         window.blit(self.value5, (600, 100+offset*5))
         window.blit(self.value6, (600, 100+offset*6))
         window.blit(self.value7, (600, 100+offset*7))
+        window.blit(self.value8, (600, 100+offset*8))
+
+        window.blit(self.value9, (600, 100+offset*10))

@@ -2,9 +2,16 @@ from ebooklib import epub, ITEM_DOCUMENT
 import ebooklib
 from bs4 import BeautifulSoup
 
+from src.components.configManager import configManager
+
 class textParser:
+    REPLACESTRINGS = [
+        "Chapter ",
+        "Table of Contents"
+    ]
     def __init__(self):
-        return
+        self.cm = configManager()
+        self.cfg = self.cm.load()
 
     def parse(self, file_path):
         ext = file_path.split(".")[-1]
@@ -32,10 +39,11 @@ class textParser:
                         chapters.append(text)
                 ###
 
+                blank = self.cfg["blank"]
                 words, wordcount = [], 0
                 for c in chapters:
-                    c = c.replace("Chapter ", "Chapter⠀") #U+2800 Blank
-                    c = c.replace("Table of Contents", "Table⠀of⠀Contents")
+                    for r in self.REPLACESTRINGS:
+                        c = c.replace(r, r.replace(" ",blank))
                     words += [c.split()] 
                     wordcount += len(c)
                 wordcount_ch = len(words[0])
