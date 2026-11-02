@@ -32,7 +32,7 @@ class textParser:
                         chapters.append(text)
                 ###
 
-                words = []
+                words, wordcount = [], 0
                 for c in chapters:
                     c = c.replace("Chapter ", "Chapter⠀") #U+2800 Blank
                     c = c.replace("Table of Contents", "Table⠀of⠀Contents")
